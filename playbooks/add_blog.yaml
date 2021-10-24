@@ -1,0 +1,92 @@
+---
+- hosts: all
+  vars:
+    # Takes in the --extra-vars 'blog_url'
+    blog_name: '{{ blog_url | replace(".","_") }}'
+
+  tasks:
+    - name: Create the blog WordPress directory
+      file:
+        path: /var/www/{{ blog_url }}
+        state: directory
+
+    - name: Create the blog group
+      group:
+        name: '{{ blog_name }}'
+        state: present
+
+    - name: Create the blog user
+      user:
+        name: '{{ blog_name }}'
+        group: '{{ blog_name }}'
+        create_home: no
+        home: /var/www/{{ blog_url }}
+        shell: /usr/sbin/nologin
+        state: present
+
+    - name: Create the blog logs directory
+      file:
+        path: /var/www/{{ blog_url }}/logs
+        state: directory
+
+    - name: Create the blog tmp directory
+      file:
+        path: /var/www/{{ blog_url }}/tmp
+        state: directory
+
+    - name: Download the latest version of WordPress and extract it to the blog folder
+      unarchive:
+        src: https://wordpress.org/latest.zip
+        dest: /var/www/{{ blog_url }}
+        remote_src: yes
+
+    - name: Move WordPress from ./wordpress to ./public_html
+      command: mv /var/www/{{ blog_url }}/wordpress /var/www/{{ blog_url }}/public_html
+
+    - name: Set correct permissions for the folders
+      ansible.builtin.file:
+        path: /var/www/{{ blog_url }}
+        state: directory
+        recurse: yes
+        mode: 0755
+        owner: '{{ blog_name }}'
+        group: '{{ blog_name }}'
+
+    - name: Get salts from the WordPress API
+      uri:
+        url: "https://api.wordpress.org/secret-key/1.1/salt/"
+        return_content: yes
+      register: salts
+
+    - name: Copy wp-config.php to /var/www/{{ blog_url }}/public_html
+      template:
+        src: ../templates/wp-config.php.j2
+        dest: /var/www/{{ blog_url }}/public_html/wp-config.php
+        mode: 0444
+        owner: '{{ blog_name }}'
+        group: '{{ blog_name }}'
+
+    - name: Create database
+      mysql_db:
+        name: '{{ blog_name }}'
+        state: present
+
+    - name: Create mysql user
+      mysql_user:
+        name: '{{ blog_name }}'
+        # password: '{{ lookup('password', '/tmp/passwordfile length=8 chars=digits') }}'
+        password: ''
+        priv: '{{ blog_name }}.*:ALL'
+
+    - name: Create apache config file for {{ blog_name }}
+      template:
+        src: ../templates/example.com.conf.j2
+        dest: /etc/apache2/sites-available/{{ blog_name }}.conf
+
+    - name: Enable {{ blog_url }}
+      command: a2ensite {{ blog_name }}
+
+    - name: Restart apache
+      service:
+        name: apache2
+        state: restarted

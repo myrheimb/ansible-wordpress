@@ -1,0 +1,51 @@
+---
+  - hosts: all
+    vars:
+      # Generate a password for MySQL
+      mysql_root_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=20') }}"
+
+    tasks:
+    - name: Check that /root/.my.cnf exists
+      stat:
+        path: /root/.my.cnf
+      register: sql_secured
+
+    - name: Copy mysql root config file
+      template:
+        src: ../templates/my.cnf.j2
+        dest: /root/.my.cnf
+      when: not sql_secured.stat.exists
+
+    - name: Read password from file
+      shell: grep -oP '(?<=password=)[^.]*' /root/.my.cnf
+      register: mysql_password
+      when: not sql_secured.stat.exists
+
+    - name: Update mysql root password
+      mysql_user:
+        name: root
+        config_file: /root/.my.cnf
+        password: '{{ mysql_password.stdout }}'
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        priv: '*.*:ALL,GRANT'
+        check_implicit_admin: yes
+      when: not sql_secured.stat.exists
+
+    - name: Remove anonymous user from mysql
+      mysql_user:
+        name: ''
+        host_all: yes
+        state: absent
+      when: not sql_secured.stat.exists
+
+    - name: Remove the test database from mysql
+      mysql_db:
+        db: test
+        state: absent
+      when: not sql_secured.stat.exists
+
+    - name: Restart service mariadb
+      service:
+        name: mariadb
+        state: restarted
+      when: not sql_secured.stat.exists

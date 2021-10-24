@@ -1,0 +1,22 @@
+---
+- hosts: all
+  tasks:
+    - name: Update cache
+      apt:
+       update_cache: yes
+
+    - name: Update all packages on servers
+      apt:
+        name: "*"
+        state: latest
+
+    - name: Check if the server needs to be rebooted
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    - name: Reboot system if required
+      reboot:
+        reboot_command: reboot
+        reboot_timeout: 600
+      when: reboot_required.stat.exists

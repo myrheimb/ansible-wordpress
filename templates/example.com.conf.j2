@@ -1,0 +1,31 @@
+<VirtualHost *:80>
+  ServerAdmin admin@{{ blog_url }}
+  ServerName {{ blog_url }}
+  ServerAlias *.{{ blog_url }}
+
+  # Directories and logging
+  DocumentRoot /var/www/{{ blog_url }}/public_html
+  ErrorLog /var/www/{{ blog_url }}/logs/error.log
+  CustomLog /var/www/{{ blog_url }}/logs/access.log combined
+  php_admin_value error_log /var/www/{{ blog_url }}/logs/php.error.log
+
+  # Specify the tmp directory
+  <Directory /var/www/{{ blog_url }}/public_html>
+    php_admin_value upload_tmp_dir /var/www/{{ blog_url }}/tmp
+    php_admin_value sys_temp_dir /var/www/{{ blog_url }}/tmp
+    php_admin_value open_basedir /var/www/{{ blog_url }}/public_html/:/var/www/{{ blog_url }}/tmp/
+  </Directory>
+
+  # Disable execution of php code in the uploads folder
+  <Directory /var/www/{{ blog_url }}/public_html/wp-content/uploads>
+    php_admin_flag engine off
+    <Files *.php>
+      deny from all
+    </Files>
+  </Directory>
+
+  # Run each blog as its own user 
+  <IfModule mpm_itk_module>
+    AssignUserId {{ blog_name }} {{ blog_name }}
+  </IfModule>
+</VirtualHost>

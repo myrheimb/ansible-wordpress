@@ -1,0 +1,51 @@
+---
+- hosts: all
+  vars:
+    # Takes in the --extra-vars 'blog_url'
+    blog_name: '{{ blog_url | replace(".","_") }}'
+
+  tasks:
+    - name: Delete database
+      mysql_db:
+        name: '{{ blog_name }}'
+        state: absent
+
+    - name: Delete mysql user
+      mysql_user:
+        name: '{{ blog_url }}'
+        state: absent
+        priv: '{{ blog_name }}.*:ALL'
+
+    - name: Delete WordPress files for {{ blog_url }}
+      file:
+        path: /var/www/{{ blog_url }}/
+        state: absent
+
+    - name: Delete the blog user
+      user:
+        name: '{{ blog_name }}'
+        state: absent
+        remove: yes
+
+    - name: Delete the blog group
+      group:
+        name: '{{ blog_name }}'
+        state: absent
+
+    - name: Delete apache config file for {{ blog_name }}
+      file:
+        path: /etc/apache2/sites-available/{{ blog_name }}.conf
+        state: absent
+
+    - name: Disable {{ blog_name }}
+      command: a2dissite {{ blog_name }}
+
+    - name: Delete apache config file for {{ blog_name }}
+      file:
+        path: /etc/apache2/sites-enabled/{{ blog_name }}.conf
+        state: absent
+
+    - name: Restart apache
+      service:
+        name: apache2
+        state: restarted
