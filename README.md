@@ -3,7 +3,7 @@
 Quickly set up one or more LAMP servers designed to host multiple WordPress blogs.
 The current configuration is for Ubuntu servers.
 
-## Set up
+## Get started
 
 - Clone the repo `git clone https://github.com/myrheimb/ansible-wordpress.git`.
 - In the `hosts` file change the following:
