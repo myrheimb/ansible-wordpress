@@ -1,0 +1,8 @@
+# Return a 404 for non-existent domains and if the server IP is accessed directly.
+<VirtualHost *:80>
+  ServerName default
+  Redirect 404 /
+</VirtualHost>
+<VirtualHost _default_:80>
+  Redirect 404 /
+</VirtualHost>

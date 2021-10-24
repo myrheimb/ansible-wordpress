@@ -1,0 +1,56 @@
+---
+- hosts: all
+  tasks:
+    - name: Install lamp packages
+      apt:
+        name: [
+          'apache2',
+          'curl',
+          'iptables',
+          'iptables-persistent',
+          'libapache2-mod-php',
+          'libapache2-mpm-itk',
+          'mariadb-server',
+          'php',
+          'php-mysql',
+          'php-curl',
+          'php-gd',
+          'php-mbstring',
+          'php-xml',
+          'php-xmlrpc',
+          'php-soap',
+          'php-intl',
+          'php-zip',
+          'python3-pymysql',
+          'python3-mysqldb',
+          'unzip'
+        ]
+        state: latest
+
+    - name: Open ports for HTTP and HTTPS
+      iptables:
+        chain: INPUT
+        protocol: tcp
+        destination_ports:
+        - "80"
+        - "443"
+        jump: ACCEPT
+        action: insert
+        rule_num: 1
+        state: present
+
+    - name: Make the current firewall state persistent
+      community.general.iptables_state:
+        state: saved
+        path: /etc/iptables/rules.v4
+
+    - name: Replace the default 000-default.conf file
+      template:
+        src: ../templates/000-default.conf.j2
+        dest: /etc/apache2/sites-available/000-default.conf
+
+    - name: (Re)start apache
+      service: name=apache2 state=restarted enabled=yes
+
+    - name: Start mariadb
+      service: name=mariadb state=started enabled=yes
