@@ -8,11 +8,13 @@
     - name: Delete database
       mysql_db:
         name: '{{ blog_name }}'
+        login_unix_socket: /run/mysqld/mysqld.sock
         state: absent
 
     - name: Delete mysql user
       mysql_user:
         name: '{{ blog_url }}'
+        login_unix_socket: /run/mysqld/mysqld.sock
         state: absent
         priv: '{{ blog_name }}.*:ALL'
 

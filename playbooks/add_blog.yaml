@@ -43,12 +43,13 @@
     - name: Move WordPress from ./wordpress to ./public_html
       command: mv /var/www/{{ blog_url }}/wordpress /var/www/{{ blog_url }}/public_html
 
-    - name: Set correct permissions for the folders
+      # 700 for folders and 600 for files
+    - name: Set permissions for the blog's files and folders
       ansible.builtin.file:
         path: /var/www/{{ blog_url }}
         state: directory
         recurse: yes
-        mode: 0755
+        mode: a=-rwx,u+rwX
         owner: '{{ blog_name }}'
         group: '{{ blog_name }}'
 
@@ -58,23 +59,27 @@
         return_content: yes
       register: salts
 
+      # Set the wp-config.php file to be read-only
     - name: Copy wp-config.php to /var/www/{{ blog_url }}/public_html
       template:
         src: ../templates/wp-config.php.j2
         dest: /var/www/{{ blog_url }}/public_html/wp-config.php
-        mode: 0444
+        mode: 0400
         owner: '{{ blog_name }}'
         group: '{{ blog_name }}'
 
     - name: Create database
       mysql_db:
         name: '{{ blog_name }}'
+        login_unix_socket: /run/mysqld/mysqld.sock
         state: present
 
+      # We'll connect to MySQL using the unix_socket so no password is required
     - name: Create mysql user
       mysql_user:
         name: '{{ blog_name }}'
-        # password: '{{ lookup('password', '/tmp/passwordfile length=8 chars=digits') }}'
+        login_unix_socket: /run/mysqld/mysqld.sock
+        plugin: unix_socket
         password: ''
         priv: '{{ blog_name }}.*:ALL'
 
