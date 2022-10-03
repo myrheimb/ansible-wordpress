@@ -28,7 +28,7 @@ host = ""
 # Add a blog to the specified server.
 add-blog:
 	@if [ ${blog_url} = "" ] || [ ${host} = "" ]; then \
-		echo - Please specify the URL of the blog you want to add. \
+		echo - Please specify the host and URL of the blog you want to add. \
 		&& echo - "E.g. 'make add-blog blog_url=domain.tld host=wp-serv-1'" \
 		&& exit 1;\
 	fi
@@ -41,7 +41,7 @@ host = ""
 # Remove a blog from the specified server.
 remove-blog:
 	@if [ ${blog_url} = "" ] || [ ${host} = "" ]; then \
-		echo - Please specify the URL of the blog you want to remove. \
+		echo - Please specify the host and URL of the blog you want to remove. \
 		&& echo - "E.g. 'make remove-blog blog_url=domain.tld host=wp-serv-1'" \
 		&& exit 1;\
 	fi
