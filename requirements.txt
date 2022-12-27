@@ -36,7 +36,7 @@ pyyaml==6.0
     # via ansible-core
 resolvelib==0.8.1
     # via ansible-core
-wheel==0.37.1
+wheel==0.38.1
     # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:
