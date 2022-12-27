@@ -14,7 +14,7 @@ cffi==1.15.1
     # via cryptography
 click==8.1.3
     # via pip-tools
-cryptography==38.0.1
+cryptography==38.0.3
     # via ansible-core
 jinja2==3.1.2
     # via ansible-core
@@ -36,10 +36,6 @@ pyyaml==6.0
     # via ansible-core
 resolvelib==0.8.1
     # via ansible-core
-tomli==2.0.1
-    # via
-    #   build
-    #   pep517
 wheel==0.37.1
     # via pip-tools
 
