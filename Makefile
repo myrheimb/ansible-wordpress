@@ -11,16 +11,13 @@ host = "servers"
 .PHONY: install
 # Install LAMP on the servers in hosts or specify a server with the host= argument.
 install:
-	@test -d .venv || make install-venv
-	@. .venv/bin/activate \
-	&& ansible-playbook playbooks/install.yaml -l ${host}
+	ansible-playbook playbooks/install.yaml -l ${host}
 
 host = "servers"
 .PHONY: update
 # Update the packages on the servers in hosts or specify a server with the host= argument.
 update:
-	@. .venv/bin/activate \
-	&& ansible-playbook playbooks/update_os.yaml
+	ansible-playbook playbooks/update_os.yaml
 
 blog_url = ""
 host = ""
@@ -32,8 +29,7 @@ add-blog:
 		&& echo - "E.g. 'make add-blog blog_url=domain.tld host=wp-serv-1'" \
 		&& exit 1;\
 	fi
-	@. .venv/bin/activate \
-	&& ansible-playbook playbooks/add_blog.yaml -l ${host} --extra-vars "blog_url=${blog_url}"
+	ansible-playbook playbooks/add_blog.yaml -l ${host} --extra-vars "blog_url=${blog_url}"
 
 blog_url = ""
 host = ""
@@ -45,29 +41,15 @@ remove-blog:
 		&& echo - "E.g. 'make remove-blog blog_url=domain.tld host=wp-serv-1'" \
 		&& exit 1;\
 	fi
-	@. .venv/bin/activate \
-	&& ansible-playbook playbooks/remove_blog.yaml -l ${host} --extra-vars "blog_url=${blog_url}"
-
-.PHONY: install-venv
-# Set up a virtual environment and install the Python dependencies.
-install-venv:
-	@echo "Setting up the virtual environment ..."
-	@test -d .venv || python3 -m venv .venv
-	@. .venv/bin/activate \
-	&& pip install --upgrade pip setuptools \
-	&& pip install -r requirements.txt
-
-.PHONY: update-venv
-# Update and lock version pins for Python dependencies.
-update-venv:
-	@test -d .venv/lib/python3.*/site-packages/piptools || make install-venv
-	@. .venv/bin/activate \
-	&& pip-compile requirements.in \
-	&& pip install -r requirements.txt
+	ansible-playbook playbooks/remove_blog.yaml -l ${host} --extra-vars "blog_url=${blog_url}"
 
 .PHONY: clean
-# Remove .venv and any .pyc files.
+# Remove the .devenv, .direnv, and .venv folders.
 clean:
-	@echo Removing .venv and any .pyc files ...
-	@rm -rf .venv
-	@find . -iname "*.pyc" -delete
+	@rm -rf .devenv .direnv .venv
+	@direnv reload
+
+.PHONY: gc
+# Removes old devenv generations.
+gc:
+	@devenv gc

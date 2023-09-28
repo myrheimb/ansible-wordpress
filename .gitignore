@@ -136,3 +136,11 @@ dmypy.json
 
 # MacOS
 .DS_Store
+
+# devenv
+.devenv*
+devenv.local.nix
+devenv.flake.nix
+
+# direnv
+.direnv
