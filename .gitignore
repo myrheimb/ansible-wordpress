@@ -144,3 +144,6 @@ devenv.flake.nix
 
 # direnv
 .direnv
+
+# pre-commit
+.pre-commit-config.yaml

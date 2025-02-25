@@ -82,6 +82,7 @@
         plugin: unix_socket
         password: ''
         priv: '{{ blog_name }}.*:ALL'
+        column_case_sensitive: false  # Explicitly set to maintain current behavior
 
     - name: Create apache config file for {{ blog_name }}
       template:

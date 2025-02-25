@@ -9,6 +9,7 @@
         password: ''
         login_unix_socket: /run/mysqld/mysqld.sock
         priv: '*.*:ALL,GRANT'
+        column_case_sensitive: false  # Explicitly set to maintain current behavior
 
     - name: Remove anonymous user from mysql
       mysql_user:
