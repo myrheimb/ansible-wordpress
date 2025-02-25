@@ -2,8 +2,6 @@
 YOUR_SERVER_HOSTNAME ansible_host=YOUR_SERVER_IP_ADDRESS
 
 [servers:vars]
-ansible_become=yes
-ansible_become_method=sudo
 ansible_private_key_file=/PATH/TO/YOUR/SSH/KEY
 ansible_python_interpreter='/usr/bin/python3'
-ansible_user=ubuntu
+ansible_user=root

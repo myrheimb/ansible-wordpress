@@ -1,16 +1,16 @@
 [tool.poetry]
 name = "ansible-wordpress"
-version = "2023.9.26"
+version = "2025.2.25"
 description = "Use ansible to set up LAMP-servers with Wordpress."
 authors = ["myrheimb@gmail.com"]
 homepage = "https://github.com/myrheimb"
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.10"
-black = "^23.9.1"
+python = "^3.12"
+black = "^25.1.0"
 pdbpp = "^0.10.3"
-ansible = "^8.4.0"
+ansible = "^11.2.0"
 
 [build-system]
 requires = ["poetry"]
